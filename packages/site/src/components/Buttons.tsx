@@ -41,6 +41,7 @@ const Button = styled.button`
   ${({ theme }) => theme.mediaQueries.small} {
     width: 100%;
   }
+  margin-top: auto;
 `;
 
 const ButtonText = styled.span`
@@ -96,6 +97,18 @@ export const ReconnectButton = (props: ComponentProps<typeof Button>) => {
 
 export const SendHelloButton = (props: ComponentProps<typeof Button>) => {
   return <Button {...props}>Send message</Button>;
+};
+
+export const CheckBotHumanButton = (props: ComponentProps<typeof Button>) => {
+  return <Button {...props}>Check the wallet!</Button>;
+};
+
+export const GetWalletInformationButton = (props: ComponentProps<typeof Button>) => {
+  return <Button {...props}>Get address information!</Button>;
+};
+
+export const GetAccountsListButton = (props: ComponentProps<typeof Button>) => {
+  return <Button {...props}>Get a list of accounts!</Button>;
 };
 
 export const HeaderButtons = ({

@@ -1,4 +1,8 @@
 import { useContext } from 'react';
+import { useState } from 'react';
+import axios from 'axios';
+import { Checkbox, FormControlLabel, Grid, Slider, Typography } from '@mui/material';
+
 import styled from 'styled-components';
 import { MetamaskActions, MetaMaskContext } from '../hooks';
 import {
@@ -12,8 +16,25 @@ import {
   InstallFlaskButton,
   ReconnectButton,
   SendHelloButton,
+  CheckBotHumanButton,
+  GetWalletInformationButton,
+  GetAccountsListButton,
   Card,
 } from '../components';
+import { InputField } from '../components/Inputs';
+import { FilterComponent } from '../components/Filters';
+import { GridComponent, MyTable } from '../components/Grid_info';
+import { TextComponent, PaginatedListComponent } from '../components/Outputs';
+import MetaMaskSDK from '@metamask/sdk';
+
+const options = {
+  injectProvider: false,
+};
+
+const MMSDK = new MetaMaskSDK(options);
+
+const ethereum = MMSDK.getProvider(); // You can also access via window.ethereum
+
 
 const Container = styled.div`
   display: flex;
@@ -100,7 +121,32 @@ const ErrorMessage = styled.div`
 `;
 
 const Index = () => {
+
   const [state, dispatch] = useContext(MetaMaskContext);
+  const [botHuman, setBotHuman] = useState('');
+  const [accountInfo, setAccountInfo] = useState('');
+  const [walletList, setWalletList] = useState([]);
+  const [walletInfo, setWalletInfo] = useState({});
+
+  const [filters, setFilters] = useState({
+    hasImages: false,
+    price: { min: 0, max: 10000 }
+  });
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = event.target;
+    setFilters((prevFilters) => ({ ...prevFilters, [name]: checked }));
+  };
+
+  const handlePriceChange = (_event: React.ChangeEvent<{}>, value: number | number[]) => {
+    if (Array.isArray(value)) {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        price: { ...prevFilters.price, min: value[0], max: value[1] }
+      }));
+    }
+  };
+
 
   const handleConnectClick = async () => {
     try {
@@ -117,14 +163,147 @@ const Index = () => {
     }
   };
 
-  const handleSendHelloClick = async () => {
+  const handleAccountInfoButton = async () => {
     try {
-      await sendHello();
+      let response = await axios.get(`http://localhost:5000/get_malicious_address/${accountInfo}`);
+      response = response['data'];
+      console.log(response);
+      setWalletInfo(response);
     } catch (e) {
       console.error(e);
       dispatch({ type: MetamaskActions.SetError, payload: e });
     }
   };
+
+  // const handleCheckBotHuman = async () => {
+  //   try {
+  //     await sendHello();
+  //   } catch (e) {
+  //     console.error(e);
+  //     dispatch({ type: MetamaskActions.SetError, payload: e });
+  //   }
+  // };
+
+  const [address, setAddress] = useState("");
+  const [filtersJS, setFiltersJS] = useState();
+  const [result, setResult] = useState("");
+  const [walletBotHuman, setWalletBotHuman] = useState("");
+
+  const handleCheckBotHuman = async () => {
+    try {
+      let response = await axios.get(`http://localhost:5000/get_portfolio_value/${botHuman}`);
+      response = response['data'];
+      console.log(response);
+      setWalletBotHuman(response['answer']);
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  };
+
+  const handleWalletInfoButton = async () => {
+    try {
+      let response = await axios.get(`http://localhost:5000/get_ethereum_accounts`);
+      console.log(response);
+      setWalletBotHuman(JSON.stringify(response));
+    } catch (e) {
+      console.error(e);
+      dispatch({ type: MetamaskActions.SetError, payload: e });
+    }
+  }
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    try {
+      const response = await axios.get(`/get_nfts_at_address/${address}`);
+      setResult(response.data.result);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+
+
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setBotHuman(event.target.value);
+  };
+
+  const handleAccountInfoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setAccountInfo(event.target.value);
+  };
+
+  const handleWalletListChangeButton = async () => {
+    let response = await axios.get(`http://localhost:5000/get_ethereum_accounts`);
+    // console.log(response['data']['data']['items']);
+    let accountsList = [];
+    for (var val of response['data']['data']['items']) {
+      accountsList.push(val['from_address']);
+      accountsList.push(val['to_address']);
+    }
+
+    let unique = accountsList.filter((item, i, ar) => ar.indexOf(item) === i);
+    let filtered = [];
+    console.log('Unique passed ######');
+    for (var val of unique) {
+      try {
+        let balances = await axios.get(`http://localhost:5000/get_balances/${val}`);
+
+        if (balances['data']['Ether'] >= filtersJS.amountEth.min && balances['data']['Ether'] <= filtersJS.amountEth.max) {
+
+          let transactions = await axios.get(`http://localhost:5000/get_transactions/${val}`);
+
+          if (transactions['data']['number_of_transactions'] >= filtersJS.numTrasactions.min && transactions['data']['number_of_transactions'] <= filtersJS.numTrasactions.max) {
+
+            let tornado = true;
+
+            if (filtersJS.hasTornadoCash) {
+
+              if (transactions['data']['tornado_cash']) {
+                tornado = false;
+              }
+
+            }
+
+            let malicious = true;
+            if (filtersJS.hasMaliciousContract) {
+              let malicious_address = await axios.get(`http://localhost:5000/get_malicious_address/${val}`);
+              malicious_address = malicious_address['data'];
+              console.log(malicious_address);
+              for (const item in malicious_address) {
+                console.log(item, malicious_address[item]);
+                if (malicious_address[item] != 0 && item != 'contract_address') {
+                  console.log(malicious_address);
+                  malicious = false;
+                  break;
+                }
+              }
+            }
+            if (tornado && malicious) {
+              filtered.push(val);
+            }
+          }
+        }
+      }
+      catch (e) {
+        console.log(e);
+      }
+
+    }
+    try {
+      setWalletList(filtered);
+    }
+    catch (e) {
+      console.log(e);
+      setWalletList(unique);
+    }
+
+  };
+
+  const onFiltersChange = (filters: any) => {
+    console.log("Filters updated:", filters);
+    setFiltersJS(filters);
+  };
+
 
   return (
     <Container>
@@ -156,7 +335,7 @@ const Index = () => {
             content={{
               title: 'Connect',
               description:
-                'Get started by connecting to and installing the example snap.',
+                `Get started by connecting to and installing the example snap.`,
               button: (
                 <ConnectButton
                   onClick={handleConnectClick}
@@ -185,15 +364,69 @@ const Index = () => {
         )}
         <Card
           content={{
-            title: 'Send Hello message',
+            title: 'Tell me if the wallet is managed by a bot or a human!',
             description:
-              'Display a custom message within a confirmation screen in MetaMask.',
+              `Enter the adress: ${address}`,
             button: (
-              <SendHelloButton
-                onClick={handleSendHelloClick}
+              <CheckBotHumanButton
+                onClick={handleCheckBotHuman}
                 disabled={!state.installedSnap}
               />
             ),
+            input: <InputField
+              label="Wallet Address"
+              value={botHuman}
+              onChange={handleNameChange}
+            />,
+            output: <TextComponent text={walletBotHuman} />,
+            intro: 'Answer:\n'
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+        <Card
+          content={{
+            title: 'I want more information about the account!',
+            description:
+              'Enter the address to get the information:',
+            button: (
+              <GetWalletInformationButton
+                onClick={handleAccountInfoButton}
+                disabled={!state.installedSnap}
+              />
+            ),
+            input: <InputField
+              label="Wallet Address"
+              value={accountInfo}
+              onChange={handleAccountInfoChange}
+            />,
+            output: <MyTable data={walletInfo} />,
+          }}
+          disabled={!state.installedSnap}
+          fullWidth={
+            state.isFlask &&
+            Boolean(state.installedSnap) &&
+            !shouldDisplayReconnectButton(state.installedSnap)
+          }
+        />
+
+        <Card
+          content={{
+            title: 'I want a list of accounts satisfying my needs!',
+            description:
+              'Fill in the information below',
+            button: (
+              <GetAccountsListButton
+                onClick={handleWalletListChangeButton}
+                disabled={!state.installedSnap}
+              />
+            ),
+            input: <FilterComponent onFiltersChange={onFiltersChange} />,
+            output: <PaginatedListComponent items={walletList} />,
           }}
           disabled={!state.installedSnap}
           fullWidth={

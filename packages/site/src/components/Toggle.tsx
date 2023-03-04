@@ -57,12 +57,12 @@ const IconContainer = styled.div`
   }
 `;
 
-const CheckedContainer = styled(IconContainer)<CheckedProps>`
+const CheckedContainer = styled(IconContainer) <CheckedProps>`
   opacity: ${({ checked }) => (checked ? 1 : 0)};
   left: 10px;
 `;
 
-const UncheckedContainer = styled(IconContainer)<CheckedProps>`
+const UncheckedContainer = styled(IconContainer) <CheckedProps>`
   opacity: ${({ checked }) => (checked ? 0 : 1)};
   right: 10px;
 `;

@@ -1,0 +1,9 @@
+{
+    "eslint.format.enable": true,
+    "eslint.packageManager": "yarn",
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
+    "eslint.codeActionsOnSave.mode": "all",
+    "editor.tabSize": 2
+}

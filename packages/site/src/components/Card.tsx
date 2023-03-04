@@ -6,6 +6,9 @@ type CardProps = {
     title?: string;
     description: ReactNode;
     button?: ReactNode;
+    input?: ReactNode;
+    output?: ReactNode;
+    intro?: string;
   };
   disabled?: boolean;
   fullWidth?: boolean;
@@ -46,13 +49,16 @@ const Description = styled.div`
 `;
 
 export const Card = ({ content, disabled = false, fullWidth }: CardProps) => {
-  const { title, description, button } = content;
+  const { title, description, button, input, output, intro } = content;
   return (
     <CardWrapper fullWidth={fullWidth} disabled={disabled}>
       {title && (
         <Title>{title}</Title>
       )}
       <Description>{description}</Description>
+      {input}
+      <Title>{intro}</Title>
+      {output}
       {button}
     </CardWrapper>
   );
