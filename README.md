@@ -10,11 +10,24 @@ To interact with (your) Snaps, you will need to install [MetaMask Flask](https:/
 
 ## Getting Started
 
-Clone the template-snap repository [using this template](https://github.com/MetaMask/template-snap-monorepo/generate) and setup the development environment:
+Create conda environment:
+```shell
+conda create --name patootoo python=3.10.8
+conda activate patootoo
+```
 
+Execute the following command to run the website at localhost:8000
 ```shell
 yarn install && yarn start
 ```
+
+Open new terminal window and run the following commands to run backend
+```shell
+cd packages/backend
+flask --app endpoints run --reload
+```
+
+Now, you can access all the features at ```localhost:8000```.
 
 ## Cloning
 
