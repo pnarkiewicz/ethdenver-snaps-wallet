@@ -63,6 +63,7 @@ TODO #3: add more filters.
 
 ## Blockchain feature #4
 
-Just before the final approval of the transaction Patootoo will tell you everything it knows about the wallet (and it knows a lot!).
+Just before the final approval of the transaction Patootoo will tell you everything it knows about the wallet (and it knows a lot!). Simply select the tab called "Typecsript Example Snap".
 
+<img width="358" alt="Zrzut ekranu 2023-03-30 o 12 13 25" src="https://user-images.githubusercontent.com/57833772/228805463-0e2941dc-5bb4-4c8b-a7b7-3e53089a9e65.png">
 
