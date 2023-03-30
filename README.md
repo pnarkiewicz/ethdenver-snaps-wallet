@@ -1,4 +1,4 @@
-# Patootoo - want more info about accounts?!
+# Patootoo - want useful info about accounts?!
 
 ![image](https://user-images.githubusercontent.com/57833772/228804128-842ef716-b027-4acd-9ddf-425c89b73e8d.png)
 
@@ -53,7 +53,7 @@ TODO #2: add button with function downloading the data.
 
 ## Blockchain feature #3
 
-Patootoo (prototype) Wallet Database - select desired filters, click 'Get a list of accounts!' and wait 2-4 minutes to get the list satisyfing your needs!
+Patootoo (prototype) Wallet Database - select desired filters, click 'Get a list of accounts!' and wait 2-4 minutes to get the list satisyfing your needs! Patootoo is clever but it needs some time to think!
 
 TODO #1: improve the UX.
 TODO #2: add button with function downloading the data.
